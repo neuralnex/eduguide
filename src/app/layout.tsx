@@ -15,8 +15,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Nosana Mastra Agent Kit",
-  description: "An example of using CopilotKit with Mastra agents.",
+  title: "Educational Guide Agent",
+  description: "AI-powered educational guide for learning any topic with free resources and YouTube videos.",
 };
 
 export default function RootLayout({
@@ -27,7 +27,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <CopilotKit runtimeUrl="/api/copilotkit" agent="weatherAgent">
+        <CopilotKit 
+          runtimeUrl="/api/copilotkit" 
+          agent="educationalAgent"
+          publicLicenseKey="ck_pub_568d4b6ddab612b409c2bf1d7f6677c8"
+        >
           {children}
         </CopilotKit>
       </body>

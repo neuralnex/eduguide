@@ -1,47 +1,73 @@
-# Builders' Challenge #3: AI Agents 102
-**Presented by Nosana and Mastra**
+# EduGuide: AI-Powered Educational Curriculum Planner
+**Built with Mastra Framework & Gemini AI**
 
-![Agent](./assets/NosanaBuildersChallenge03.jpg)
+![EduGuide](./assets/NosanaBuildersChallenge03.jpg)
 
-## Welcome to the AI Agent Challenge
+## 🎓 Welcome to EduGuide
 
-Build and deploy intelligent AI agents using the **Mastra framework** on the **Nosana decentralized compute network**. Whether you're a beginner or an experienced developer, this challenge has something for everyone!
+EduGuide is an intelligent AI-powered educational agent that creates comprehensive learning curricula for any topic. Whether you want to learn programming, languages, sciences, arts, or any other subject, EduGuide acts as your personal learning coach, designing detailed step-by-step learning paths with curated resources and YouTube videos.
 
-## 🎯 Challenge Overview
+## 🎯 What is EduGuide?
 
-**Your Mission:** Build an intelligent AI agent with a frontend interface and deploy it on Nosana's decentralized network.
+**Your Mission:** Create personalized learning experiences for any topic with AI-powered curriculum planning.
 
-### What You'll Build
+**Core Features:**
+- **Comprehensive Curriculum Creation**: Break down any topic into structured learning phases
+- **YouTube Video Integration**: Find relevant educational videos for each learning step
+- **Free Resource Discovery**: Curate resources from top educational platforms
+- **Personalized Learning Paths**: Adapt to different skill levels and learning styles
+- **Progress Tracking**: Visual progress indicators and milestone tracking
+- **Dynamic Content**: Handle any subject from programming to languages to sciences
 
-Create an AI agent that performs real-world tasks using:
-- **Mastra framework** for agent orchestration
-- **Tool calling** to interact with external services
-- **MCP (Model Context Protocol)** for enhanced capabilities
-- **Custom frontend** to showcase your agent's functionality
+## 🚀 Key Features
 
-### Agent Ideas & Examples
+### 🎯 **Intelligent Curriculum Planning**
+- Creates detailed learning paths with 4-8 logical phases
+- Each phase builds upon the previous one
+- Clear learning objectives and prerequisites
+- Realistic time estimates for each phase
 
-The possibilities are endless! Here are some ideas to get you started:
+### 📺 **YouTube Video Integration**
+- Searches for relevant educational videos using YouTube API
+- Curates videos by difficulty level and topic
+- Provides direct links and descriptions
+- Organized by learning phase
 
-- 🤖 **Personal Assistant** - Schedule management, email drafting, task automation
-- 📊 **Data Analyst Agent** - Fetch financial data, generate insights, create visualizations
-- 🌐 **Web Researcher** - Aggregate information from multiple sources, summarize findings
-- 🛠️ **DevOps Helper** - Monitor services, automate deployments, manage infrastructure
-- 🎨 **Content Creator** - Generate social media posts, blog outlines, marketing copy
-- 🔍 **Smart Search** - Multi-source search with AI-powered result synthesis
-- 💬 **Customer Support Bot** - Answer FAQs, ticket routing, knowledge base queries
+### 📚 **Free Resource Discovery**
+- Finds resources from Khan Academy, Coursera, edX, MIT OpenCourseWare
+- Includes FreeCodeCamp, MDN, W3Schools, and other platforms
+- Difficulty-based recommendations (beginner, intermediate, advanced)
+- Mix of video content, written materials, and interactive resources
 
-**Be Creative!** The best agents solve real problems in innovative ways.
+### 🎨 **Modern Interface**
+- Full-page ChatGPT-style chat interface
+- Dark theme with educational gray colors
+- Responsive design for all devices
+- Clean, professional aesthetic
+- Real-time progress tracking
 
-## Getting Started Template
+## 🛠️ Technical Implementation
 
-This is a starter template for building AI agents using [Mastra](https://mastra.ai) and [CopilotKit](https://copilotkit.ai). It provides a modern Next.js application with integrated AI capabilities and a beautiful UI.
+### **Architecture**
+- **Mastra Framework**: Agent orchestration and tool management
+- **Gemini 2.5 Flash**: AI model for curriculum planning and content generation
+- **Tool Calling**: YouTube API and educational resource discovery
+- **MCP (Model Context Protocol)**: Enhanced agent capabilities
+- **CopilotKit**: Modern React chat interface
+- **Next.js**: Full-stack web application framework
 
-## Getting Started
+### **Agent Capabilities**
+- **Dynamic Topic Handling**: Can create curricula for ANY subject
+- **Multi-Phase Learning**: Breaks down complex topics into manageable steps
+- **Resource Curation**: Finds and organizes educational materials
+- **Progress Tracking**: Monitors learning milestones and completion
+- **Personalized Guidance**: Adapts to user's skill level and goals
+
+## 🏗️ Getting Started
 
 ### Prerequisites & Registration
 
-To participate in the challenge and get Nosana credits/NOS tokens, complete these steps:
+To participate in the Nosana Builders Challenge and get credits/NOS tokens:
 
 1. Register at [SuperTeam](https://earn.superteam.fun/listing/nosana-builders-challenge-agents-102)
 2. Register at the [Luma Page](https://luma.com/zkob1iae)
@@ -69,48 +95,81 @@ pnpm run dev:ui      # Start UI server (port 3000)
 pnpm run dev:agent   # Start Mastra agent server (port 4111)
 ```
 
-Open <http://localhost:3000> to see your agent in action in the frontend.
-Open <http://localhost:4111> to open up the Mastra Agent Playground.
+Open <http://localhost:3000> to see EduGuide in action.
+Open <http://localhost:4111> to open the Mastra Agent Playground.
 
-#### **Step 2: Choose Your LLM for Development (Optional)**
+#### **Step 2: Configure API Keys**
 
-Pick one option below to power your agent during development:
+EduGuide requires API keys for full functionality:
 
-##### Option A: Use Shared Nosana LLM Endpoint (Recommended - No Setup!)
+1. **Google Generative AI API Key** (Required):
+   - Go to [Google AI Studio](https://makersuite.google.com/app/apikey)
+   - Create a new API key
+   - Add to your `.env`:
+   ```env
+   GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key-here
+   ```
 
-We provide a free LLM endpoint hosted on Nosana for development. Edit your `.env`:
+2. **YouTube API Key** (Required for video search):
+   - Go to [Google Cloud Console](https://console.cloud.google.com/)
+   - Create a new project or select existing one
+   - Enable YouTube Data API v3
+   - Create credentials (API Key)
+   - Add to your `.env`:
+   ```env
+   YOUTUBE_API_KEY=your-youtube-api-key-here
+   ```
 
-```env
-# Qwen3:8b - Nosana Endpoint
-# Note baseURL for Ollama needs to be appended with `/api`
-OLLAMA_API_URL=https://3yt39qx97wc9hqwwmylrphi4jsxrngjzxnjakkybnxbw.node.k8s.prd.nos.ci/api
-MODEL_NAME_AT_ENDPOINT=qwen3:8b
-```
+3. **Complete `.env` setup**:
+   ```env
+   # EduGuide API Configuration
+   GOOGLE_GENERATIVE_AI_API_KEY=your-gemini-api-key-here
+   YOUTUBE_API_KEY=your-youtube-api-key-here
+   LOG_LEVEL=info
+   ```
 
-If it goes down, reach out on [Discord](https://discord.com/channels/236263424676331521/1354391113028337664)
+#### **Step 3: Using EduGuide**
 
-##### Option B: Use Local LLM
+Once your servers are running, interact with EduGuide through the web interface:
 
-Run Ollama locally (requires [Ollama installed](https://ollama.com/download)):
+**Example Prompts:**
+- "Create a comprehensive Python programming curriculum"
+- "Design a machine learning learning path from beginner to advanced"
+- "Build a web development roadmap with projects"
+- "Plan a data science learning journey"
+- "Create a blockchain and cryptocurrency learning guide"
+- "Help me learn Spanish from scratch"
+- "Design a photography learning path"
 
-```bash
-ollama pull qwen3:0.6b
-ollama serve
-```
+**What EduGuide Provides:**
+1. **Structured Learning Path**: Step-by-step progression from basics to advanced
+2. **YouTube Videos**: Curated educational videos with titles, descriptions, and links
+3. **Free Resources**: Links to courses and tutorials from top educational platforms
+4. **Learning Objectives**: Clear goals for each learning phase
+5. **Time Estimates**: Realistic completion timelines
+6. **Prerequisites**: What you need to know before starting
+7. **Practice Exercises**: Hands-on activities and projects
+8. **Assessment Milestones**: Ways to measure progress
 
-Edit your `.env`:
-```env
-OLLAMA_API_URL=http://127.0.0.1:11434/api
-MODEL_NAME_AT_ENDPOINT=qwen3:0.6b
-```
+## 🎨 Interface Features
 
-##### Option C: Use OpenAI
+### **Full-Page Design**
+- **Clean, spacious layout** - No more cramped interfaces
+- **Dark theme** with educational gray colors
+- **Responsive design** that works on all screen sizes
+- **Professional aesthetic** similar to ChatGPT but education-focused
 
-Add to your `.env` and uncomment the OpenAI line in `src/mastra/agents/index.ts`:
+### **Smart Progress Tracking**
+- **Learning Topics**: Visual tags showing current subjects
+- **Progress Bars**: Real-time completion tracking
+- **Completed Resources**: Mark finished materials
+- **Milestone Tracking**: Visual progress indicators
 
-```env
-OPENAI_API_KEY=your-key-here
-```
+### **Dynamic Content**
+- **No hardcoded suggestions** - Fully dynamic based on user queries
+- **Gemini 2.5 Flash** handles all queries intelligently
+- **Tool integration** - YouTube videos and resources display as interactive cards
+- **Real-time updates** - Progress and content update dynamically
 
 ## 🏗️ Implementation Timeline
 
@@ -120,48 +179,44 @@ OPENAI_API_KEY=your-key-here
 - Winners Announced: 31 October
 
 ### Phase 1: Development
-
-1. **Setup** : Fork repo, install dependencies, choose template
-2. **Build** : Implement your tool functions and agent logic
-3. **Test** : Validate functionality at http://localhost:3000
+1. **Setup**: Fork repo, install dependencies, configure APIs
+2. **Build**: Implement curriculum planning and resource discovery
+3. **Test**: Validate functionality at http://localhost:3000
 
 ### Phase 2: Containerization
-
 1. **Clean up**: Remove unused agents from `src/mastra/index.ts`
 2. **Build**: Create Docker container using the provided `Dockerfile`
 3. **Test locally**: Verify container works correctly
 
 ```bash
-# Build your container (using the provided Dockerfile)
-docker build -t yourusername/agent-challenge:latest .
+# Build your container
+docker build -t yourusername/eduguide:latest .
 
 # Test locally first
-docker run -p 3000:3000 yourusername/agent-challenge:latest 
+docker run -p 3000:3000 yourusername/eduguide:latest 
 
 # Push to Docker Hub
 docker login
-docker push yourusername/agent-challenge:latest
+docker push yourusername/eduguide:latest
 ```
 
 ### Phase 3: Deployment to Nosana
 1. **Deploy your complete stack**: The provided `Dockerfile` will deploy:
    - Your Mastra agent
    - Your frontend interface
-   - An LLM to power your agent (all in one container!)
+   - Gemini AI integration (all in one container!)
 2. **Verify**: Test your deployed agent on Nosana network
 3. **Capture proof**: Screenshot or get deployment URL for submission
 
 ### Phase 4: Video Demo
-
 Record a 1-3 minute video demonstrating:
-- Your agent **running on Nosana** (show the deployed version!)
+- EduGuide **running on Nosana** (show the deployed version!)
 - Key features and functionality
 - The frontend interface in action
-- Real-world use case demonstration
+- Real-world curriculum creation demonstration
 - Upload to YouTube, Loom, or similar platform
 
 ### Phase 5: Documentation
-
 Update this README with:
 - Agent description and purpose
 - What tools/APIs your agent uses
@@ -173,7 +228,7 @@ Update this README with:
 
 Your submission **must** include:
 
-- [ ] **Agent with Tool Calling** - At least one custom tool/function
+- [ ] **Agent with Tool Calling** - YouTube API and educational resource discovery
 - [ ] **Frontend Interface** - Working UI to interact with your agent
 - [ ] **Deployed on Nosana** - Complete stack running on Nosana network
 - [ ] **Docker Container** - Published to Docker Hub
@@ -201,14 +256,13 @@ Your submission **must** include:
 
 ## 🚀 Deploying to Nosana
 
-
 ### Using Nosana Dashboard
 1. Open [Nosana Dashboard](https://dashboard.nosana.com/deploy)
 2. Click `Expand` to open the job definition editor
 3. Edit `nos_job_def/nosana_mastra.json` with your Docker image:
    ```json
    {
-     "image": "yourusername/agent-challenge:latest"
+     "image": "yourusername/eduguide:latest"
    }
    ```
 4. Copy and paste the edited job definition
@@ -303,5 +357,3 @@ Be the first to know about:
 - 🎁 Early-bird credits and partner perks
 
 Join the Nosana builder community today — and build the future of decentralized AI.
-
-

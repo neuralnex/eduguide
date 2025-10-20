@@ -1,106 +1,143 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
+import { google } from 'googleapis';
 
-interface GeocodingResponse {
-  results: {
-    latitude: number;
-    longitude: number;
-    name: string;
-  }[];
-}
-interface WeatherResponse {
-  current: {
-    time: string;
-    temperature_2m: number;
-    apparent_temperature: number;
-    relative_humidity_2m: number;
-    wind_speed_10m: number;
-    wind_gusts_10m: number;
-    weather_code: number;
-  };
-}
+export type YouTubeVideoResult = z.infer<typeof YouTubeVideoResultSchema>;
 
-export type WeatherToolResult = z.infer<typeof WeatherToolResultSchema>;
-
-const WeatherToolResultSchema = z.object({
-  temperature: z.number(),
-  feelsLike: z.number(),
-  humidity: z.number(),
-  windSpeed: z.number(),
-  windGust: z.number(),
-  conditions: z.string(),
-  location: z.string(),
+const YouTubeVideoResultSchema = z.object({
+  videos: z.array(z.object({
+    title: z.string(),
+    description: z.string(),
+    url: z.string(),
+    thumbnail: z.string(),
+    duration: z.string(),
+    channelTitle: z.string(),
+    viewCount: z.string(),
+  })),
 });
 
-export const weatherTool = createTool({
-  id: 'get-weather',
-  description: 'Get current weather for a location',
+export const youtubeTool = createTool({
+  id: 'search-youtube-videos',
+  description: 'Search for educational YouTube videos on a specific topic',
   inputSchema: z.object({
-    location: z.string().describe('City name'),
+    topic: z.string().describe('The educational topic to search for'),
+    maxResults: z.number().optional().default(5).describe('Maximum number of videos to return'),
   }),
-  outputSchema: WeatherToolResultSchema,
+  outputSchema: YouTubeVideoResultSchema,
   execute: async ({ context }) => {
-    return await getWeather(context.location);
+    return await searchYouTubeVideos(context.topic, context.maxResults);
   },
 });
 
-const getWeather = async (location: string) => {
-  const geocodingUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(location)}&count=1`;
-  const geocodingResponse = await fetch(geocodingUrl);
-  const geocodingData = (await geocodingResponse.json()) as GeocodingResponse;
+const searchYouTubeVideos = async (topic: string, maxResults: number = 5) => {
+  try {
+    const youtube = google.youtube({
+      version: 'v3',
+      auth: process.env.YOUTUBE_API_KEY,
+    });
 
-  if (!geocodingData.results?.[0]) {
-    throw new Error(`Location '${location}' not found`);
+    const response = await youtube.search.list({
+      part: ['snippet'],
+      q: `${topic} tutorial course learn education`,
+      type: ['video'],
+      maxResults,
+      order: 'relevance',
+      videoDuration: 'medium',
+      videoDefinition: 'high',
+    });
+
+    const videos = response.data.items?.map((item) => ({
+      title: item.snippet?.title || '',
+      description: item.snippet?.description || '',
+      url: `https://www.youtube.com/watch?v=${item.id?.videoId}`,
+      thumbnail: item.snippet?.thumbnails?.medium?.url || '',
+      duration: '',
+      channelTitle: item.snippet?.channelTitle || '',
+      viewCount: '',
+    })) || [];
+
+    return { videos };
+  } catch (error) {
+    console.error('YouTube API Error:', error);
+    throw new Error(`Failed to search YouTube videos: ${error}`);
   }
-
-  const { latitude, longitude, name } = geocodingData.results[0];
-
-  const weatherUrl = `https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current=temperature_2m,apparent_temperature,relative_humidity_2m,wind_speed_10m,wind_gusts_10m,weather_code`;
-
-  const response = await fetch(weatherUrl);
-  const data = (await response.json()) as WeatherResponse;
-
-  return {
-    temperature: data.current.temperature_2m,
-    feelsLike: data.current.apparent_temperature,
-    humidity: data.current.relative_humidity_2m,
-    windSpeed: data.current.wind_speed_10m,
-    windGust: data.current.wind_gusts_10m,
-    conditions: getWeatherCondition(data.current.weather_code),
-    location: name,
-  };
 };
 
-function getWeatherCondition(code: number): string {
-  const conditions: Record<number, string> = {
-    0: 'Clear sky',
-    1: 'Mainly clear',
-    2: 'Partly cloudy',
-    3: 'Overcast',
-    45: 'Foggy',
-    48: 'Depositing rime fog',
-    51: 'Light drizzle',
-    53: 'Moderate drizzle',
-    55: 'Dense drizzle',
-    56: 'Light freezing drizzle',
-    57: 'Dense freezing drizzle',
-    61: 'Slight rain',
-    63: 'Moderate rain',
-    65: 'Heavy rain',
-    66: 'Light freezing rain',
-    67: 'Heavy freezing rain',
-    71: 'Slight snow fall',
-    73: 'Moderate snow fall',
-    75: 'Heavy snow fall',
-    77: 'Snow grains',
-    80: 'Slight rain showers',
-    81: 'Moderate rain showers',
-    82: 'Violent rain showers',
-    85: 'Slight snow showers',
-    86: 'Heavy snow showers',
-    95: 'Thunderstorm',
-    96: 'Thunderstorm with slight hail',
-    99: 'Thunderstorm with heavy hail',
-  };
-  return conditions[code] || 'Unknown';
-}
+export type EducationalResourceResult = z.infer<typeof EducationalResourceResultSchema>;
+
+const EducationalResourceResultSchema = z.object({
+  resources: z.array(z.object({
+    title: z.string(),
+    description: z.string(),
+    url: z.string(),
+    type: z.enum(['course', 'tutorial', 'documentation', 'book', 'article', 'practice']),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced']),
+    cost: z.enum(['free', 'paid', 'freemium']),
+    platform: z.string(),
+  })),
+});
+
+export const educationalResourcesTool = createTool({
+  id: 'find-educational-resources',
+  description: 'Find free educational resources for learning a specific topic',
+  inputSchema: z.object({
+    topic: z.string().describe('The educational topic to find resources for'),
+    difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional().describe('Preferred difficulty level'),
+  }),
+  outputSchema: EducationalResourceResultSchema,
+  execute: async ({ context }) => {
+    return await findEducationalResources(context.topic, context.difficulty);
+  },
+});
+
+const findEducationalResources = async (topic: string, difficulty?: 'beginner' | 'intermediate' | 'advanced') => {
+  const freePlatforms = [
+    {
+      name: 'Khan Academy',
+      url: 'https://www.khanacademy.org',
+      searchUrl: `https://www.khanacademy.org/search?page_search_query=${encodeURIComponent(topic)}`,
+    },
+    {
+      name: 'Coursera (Free Courses)',
+      url: 'https://www.coursera.org',
+      searchUrl: `https://www.coursera.org/search?query=${encodeURIComponent(topic)}&productDifficultyLevel=beginner`,
+    },
+    {
+      name: 'edX',
+      url: 'https://www.edx.org',
+      searchUrl: `https://www.edx.org/search?q=${encodeURIComponent(topic)}`,
+    },
+    {
+      name: 'MIT OpenCourseWare',
+      url: 'https://ocw.mit.edu',
+      searchUrl: `https://ocw.mit.edu/search/?d=OCW&s=${encodeURIComponent(topic)}`,
+    },
+    {
+      name: 'FreeCodeCamp',
+      url: 'https://www.freecodecamp.org',
+      searchUrl: `https://www.freecodecamp.org/news/search/?query=${encodeURIComponent(topic)}`,
+    },
+    {
+      name: 'MDN Web Docs',
+      url: 'https://developer.mozilla.org',
+      searchUrl: `https://developer.mozilla.org/en-US/search?q=${encodeURIComponent(topic)}`,
+    },
+    {
+      name: 'W3Schools',
+      url: 'https://www.w3schools.com',
+      searchUrl: `https://www.w3schools.com/search/search.asp?search=${encodeURIComponent(topic)}`,
+    },
+  ];
+
+  const resources = freePlatforms.map((platform) => ({
+    title: `Learn ${topic} on ${platform.name}`,
+    description: `Free educational content about ${topic} available on ${platform.name}`,
+    url: platform.searchUrl,
+    type: 'course' as const,
+    difficulty: (difficulty || 'beginner') as 'beginner' | 'intermediate' | 'advanced',
+    cost: 'free' as const,
+    platform: platform.name,
+  }));
+
+  return { resources };
+};
