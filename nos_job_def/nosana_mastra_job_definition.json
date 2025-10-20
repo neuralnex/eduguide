@@ -1,48 +1,22 @@
 {
   "global": {
     "env": {
-      "MODEL": "qwen3:8b"
+      "GOOGLE_GENERATIVE_AI_API_KEY": "AIzaSyBEEUyeYjDewcGffhHSbtsHjuhngyi3Coo",
+      "YOUTUBE_API_KEY": "AIzaSyDqtiG-ysGvVmuVhzafgRCp6N9XJBxxY4w",
+      "LOG_LEVEL": "info",
+      "NODE_ENV": "production"
     }
   },
   "ops": [
     {
-      "id": "agents",
+      "id": "eduguide",
       "args": {
-        "image": "djmbritt/agent-challenge:latest",
+        "image": "neuralnexu/eduguide:latest",
         "expose": 3000,
         "env": {
-          "NOS_OLLAMA_API_URL": "http://%%ops.ollama.host%%:11434/api",
-          "NOS_MODEL_NAME_AT_ENDPOINT": "qwen3:8b"
+          "NODE_ENV": "production",
+          "PORT": "3000"
         }
-      },
-      "execution": {
-        "group": "run",
-        "depends_on": [
-          "ollama"
-        ]
-      },
-      "type": "container/run"
-    },
-    {
-      "id": "ollama",
-      "args": {
-        "gpu": true,
-        "image": "docker.io/ollama/ollama:0.12.0",
-        "cmd": [
-          "ollama serve & sleep 5 && ollama pull $MODEL && tail -f /dev/null"
-        ],
-        "entrypoint": [
-          "/bin/sh",
-          "-c"
-        ],
-        "resources": [
-          {
-            "url": "https://models.nosana.io/ollama/qwen3/8b",
-            "type": "S3",
-            "target": "/root/.ollama/models",
-            "allowWrite": true
-          }
-        ]
       },
       "execution": {
         "group": "run"
@@ -53,7 +27,8 @@
   "meta": {
     "trigger": "dashboard",
     "system_requirements": {
-      "required_vram": 24
+      "required_vram": 4,
+      "required_ram": 8
     }
   },
   "type": "container",

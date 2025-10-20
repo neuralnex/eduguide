@@ -30,6 +30,9 @@ RUN --mount=type=cache,target=/pnpm/store \
 
 COPY . .
 
+# Increase Node.js heap size for build
+ENV NODE_OPTIONS="--max-old-space-size=4096"
+
 RUN pnpm build
 
 FROM node:lts AS runtime
@@ -42,7 +45,7 @@ WORKDIR /app
 COPY --from=build --chown=appuser:appgroup /app ./
 
 ENV NODE_ENV=production \
-  NODE_OPTIONS="--enable-source-maps"
+  NODE_OPTIONS="--enable-source-maps --max-old-space-size=2048"
 
 USER appuser
 
