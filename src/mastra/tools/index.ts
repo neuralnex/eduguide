@@ -1,6 +1,7 @@
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { google } from 'googleapis';
+import { GoogleGenAI } from '@google/genai';
 
 export type YouTubeVideoResult = z.infer<typeof YouTubeVideoResultSchema>;
 
@@ -38,12 +39,13 @@ const searchYouTubeVideos = async (topic: string, maxResults: number = 5) => {
 
     const response = await youtube.search.list({
       part: ['snippet'],
-      q: `${topic} tutorial course learn education`,
+      q: `${topic} tutorial course learn education beginner guide`,
       type: ['video'],
       maxResults,
       order: 'relevance',
       videoDuration: 'medium',
       videoDefinition: 'high',
+      videoCategoryId: '27', // Education category
     });
 
     const videos = response.data.items?.map((item) => ({
@@ -91,6 +93,52 @@ export const educationalResourcesTool = createTool({
 });
 
 const findEducationalResources = async (topic: string, difficulty?: 'beginner' | 'intermediate' | 'advanced') => {
+  try {
+    // Use Gemini to find more specific and relevant resources
+    const ai = new GoogleGenAI({
+      apiKey: process.env.GOOGLE_GENERATIVE_AI_API_KEY!,
+    });
+
+    const prompt = `Find 4-6 specific, high-quality free educational resources for learning "${topic}" at ${difficulty || 'beginner'} level. 
+    Return a JSON array of resources with this exact format:
+    [
+      {
+        "title": "Specific course/resource name (be very specific)",
+        "description": "Detailed description of what this resource covers and why it's valuable",
+        "url": "Direct URL to the resource",
+        "type": "course|tutorial|documentation|book|article|practice",
+        "difficulty": "beginner|intermediate|advanced",
+        "cost": "free|paid|freemium",
+        "platform": "Platform name"
+      }
+    ]
+    
+    QUALITY REQUIREMENTS:
+    - Provide specific course/resource names, not generic descriptions
+    - Include detailed descriptions explaining what students will learn
+    - Focus on reputable platforms: Khan Academy, Coursera (free), edX, MIT OpenCourseWare, FreeCodeCamp, MDN Web Docs, W3Schools, Codecademy (free), React Native docs, Expo docs, official documentation, YouTube Education channels
+    - Prioritize free resources when possible
+    - Include a mix of documentation, courses, tutorials, and articles
+    - Ensure URLs are direct links to specific resources
+    
+    Return only the JSON array, no other text.`;
+
+    const response = await ai.models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+    });
+
+    // Try to parse the JSON response
+    const jsonMatch = response.text?.match(/\[[\s\S]*\]/);
+    if (jsonMatch) {
+      const parsedResources = JSON.parse(jsonMatch[0]);
+      return { resources: parsedResources };
+    }
+  } catch (error) {
+    console.error('Gemini API Error in educational resources:', error);
+  }
+
+  // Fallback to static resources if Gemini fails
   const freePlatforms = [
     {
       name: 'Khan Academy',

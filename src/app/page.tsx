@@ -96,7 +96,7 @@ export default function EducationalGuidePage() {
 
   // Show full-screen chat interface
   if (showChat) {
-    return (
+  return (
       <div className="h-screen w-screen bg-gray-900 flex flex-col">
         {/* Chat Header */}
         <div className="bg-gray-800 border-b border-gray-700 px-6 py-4 flex-shrink-0">
@@ -264,7 +264,7 @@ You can handle ANY learning request - from programming languages to foreign lang
             
             {/* Get Started Button */}
             <div className="mb-12">
-              <button 
+              <button
                 onClick={() => setShowChat(true)}
                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
               >
@@ -325,8 +325,8 @@ You can handle ANY learning request - from programming languages to foreign lang
                     <span className="text-white text-xl">{item.icon}</span>
                   </div>
                   <h4 className="text-white font-semibold text-sm">{item.topic}</h4>
-                </div>
-              ))}
+            </div>
+          ))}
             </div>
           </div>
         </div>
