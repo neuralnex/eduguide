@@ -1,10 +1,10 @@
 import { MCPServer } from "@mastra/mcp"
-import { youtubeTool, educationalResourcesTool } from "../tools";
-import { educationalAgent } from "../agents";
+import { weatherTool } from "../tools";
+import { farmAssistant } from "../agents";
 
 export const server = new MCPServer({
-  name: "Educational Guide Server",
+  name: "Nigerian Farm Assistant Server",
   version: "1.0.0",
-  tools: { youtubeTool, educationalResourcesTool },
-  agents: { educationalAgent },
+  tools: { weatherTool },
+  agents: { farmAssistant },
 });

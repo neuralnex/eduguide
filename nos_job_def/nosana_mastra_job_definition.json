@@ -4,6 +4,7 @@
       "GOOGLE_GENERATIVE_AI_API_KEY": "AIzaSyBEEUyeYjDewcGffhHSbtsHjuhngyi3Coo",
       "YOUTUBE_API_KEY": "AIzaSyDqtiG-ysGvVmuVhzafgRCp6N9XJBxxY4w",
       "LOG_LEVEL": "info",
+      "WEATHER_API_KEY": "8fb9183110714b6a8cd153817252410",
       "NODE_ENV": "production"
     }
   },

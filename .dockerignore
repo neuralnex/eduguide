@@ -49,3 +49,4 @@ coverage/
 .nyc_output/
 *.test.js
 *.spec.js
+nos_job_def/
