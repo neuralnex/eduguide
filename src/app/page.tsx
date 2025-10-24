@@ -12,8 +12,9 @@ export default function FarmAssistantPage() {
   const [themeColor, setThemeColor] = useState("#16a34a");
   const [showChat, setShowChat] = useState(false);
   const [showSidebar, setShowSidebar] = useState(true);
-  const [chatHistory, setChatHistory] = useState<Array<{id: string, title: string, timestamp: Date}>>([]);
+  const [chatHistory, setChatHistory] = useState<Array<{id: string, title: string, timestamp: Date, messages: Array<{role: string, content: string}>}>>([]);
   const [currentChatId, setCurrentChatId] = useState<string | null>(null);
+  const [chatKey, setChatKey] = useState(0); // Force re-render of chat component
 
   // Chat history management functions
   const startNewChat = () => {
@@ -21,25 +22,65 @@ export default function FarmAssistantPage() {
     const newChat = {
       id: newChatId,
       title: "New Chat",
-      timestamp: new Date()
+      timestamp: new Date(),
+      messages: []
     };
     setChatHistory(prev => [newChat, ...prev]);
     setCurrentChatId(newChatId);
+    setChatKey(prev => prev + 1); // Force chat component to re-render
   };
 
   const selectChat = (chatId: string) => {
     setCurrentChatId(chatId);
+    setChatKey(prev => prev + 1); // Force chat component to re-render
+  };
+
+  const updateChatTitle = (chatId: string, title: string) => {
+    setChatHistory(prev => 
+      prev.map(chat => 
+        chat.id === chatId ? { ...chat, title } : chat
+      )
+    );
+  };
+
+  const deleteChat = (chatId: string) => {
+    setChatHistory(prev => prev.filter(chat => chat.id !== chatId));
+    if (currentChatId === chatId) {
+      setCurrentChatId(null);
+      setChatKey(prev => prev + 1);
+    }
   };
 
   const { state, setState } = useCoAgent<FarmAssistantState>({
     name: "farmAssistant",
     initialState: {
-      currentLocation: undefined,
-      crops: [],
-      farmingActivities: [],
-      weatherAlerts: [],
-      lastWeatherCheck: undefined,
+      currentLocation: "Benue State",
+      crops: ["rice", "cassava"],
+      farmingActivities: ["rice farming", "cassava farming"],
+      weatherAlerts: [
+        "High fungal disease risk",
+        "High pest activity", 
+        "Poor air quality",
+        "High respiratory risk for animals",
+        "High parasite risk for animals"
+      ],
+      lastWeatherCheck: new Date().toISOString(),
     },
+  });
+
+  // Action to update chat title based on user's first message
+  useCopilotAction({
+    name: "updateChatTitle",
+    available: "frontend",
+    parameters: [
+      { name: "title", type: "string", required: true },
+    ],
+    handler: async ({ title }) => {
+      if (currentChatId) {
+        updateChatTitle(currentChatId, title);
+      }
+    },
+    render: () => <div></div>, // Empty UI component
   });
 
   useCopilotAction({
@@ -80,6 +121,31 @@ export default function FarmAssistantPage() {
       { name: "activity", type: "string", required: true },
       { name: "progress", type: "number", required: true },
     ],
+    handler: async ({ crop, activity, progress }) => {
+      // Update the state with new farm data
+      setState(prevState => {
+        const currentState = prevState || {
+          crops: [],
+          farmingActivities: [],
+          weatherAlerts: [],
+          currentLocation: "Benue State",
+          lastWeatherCheck: new Date().toISOString()
+        };
+        return {
+          ...currentState,
+          crops: currentState.crops.includes(crop) ? currentState.crops : [...currentState.crops, crop],
+          farmingActivities: [...currentState.farmingActivities, `${crop} farming`],
+          currentLocation: currentState.currentLocation || "Benue State",
+          weatherAlerts: [
+            "High fungal disease risk",
+            "High pest activity", 
+            "Poor air quality",
+            "High respiratory risk for animals",
+            "High parasite risk for animals"
+          ]
+        };
+      });
+    },
     render: ({ args }) => {
       return <div className="bg-green-700 rounded-lg p-4 max-w-md w-full">
         <p className="text-white font-medium">🌾 Farm Activity Updated</p>
@@ -198,20 +264,31 @@ export default function FarmAssistantPage() {
             <h3 className="text-sm font-semibold text-white mb-3">Chat History</h3>
             <div className="space-y-2 max-h-40 overflow-y-auto">
               {chatHistory.map((chat) => (
-                <button
-                  key={chat.id}
-                  onClick={() => selectChat(chat.id)}
-                  className={`w-full text-left p-2 rounded text-sm transition-colors ${
-                    currentChatId === chat.id 
-                      ? 'bg-green-600 text-white' 
-                      : 'text-gray-300 hover:bg-gray-600'
-                  }`}
-                >
-                  <div className="font-medium truncate">{chat.title}</div>
-                  <div className="text-xs text-gray-400">
-                    {chat.timestamp.toLocaleDateString()} {chat.timestamp.toLocaleTimeString()}
-                  </div>
-                </button>
+                <div key={chat.id} className="flex items-center group">
+                  <button
+                    onClick={() => selectChat(chat.id)}
+                    className={`flex-1 text-left p-2 rounded text-sm transition-colors ${
+                      currentChatId === chat.id 
+                        ? 'bg-green-600 text-white' 
+                        : 'text-gray-300 hover:bg-gray-600'
+                    }`}
+                  >
+                    <div className="font-medium truncate">{chat.title}</div>
+                    <div className="text-xs text-gray-400">
+                      {chat.timestamp.toLocaleDateString()} {chat.timestamp.toLocaleTimeString()}
+                    </div>
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteChat(chat.id);
+                    }}
+                    className="opacity-0 group-hover:opacity-100 text-red-400 hover:text-red-300 p-1 transition-opacity"
+                    title="Delete chat"
+                  >
+                    🗑️
+                  </button>
+                </div>
               ))}
             </div>
           </div>
@@ -263,9 +340,12 @@ export default function FarmAssistantPage() {
         {/* Full Screen Chat */}
         <div className="flex-1">
           <CopilotChat
+            key={chatKey} // Force re-render when switching chats
             labels={{
-              title: "Nigerian Farm Assistant",
-              initial: "Hi! 👋 I'm your Nigerian Farm Assistant. I provide comprehensive agricultural advice combining real-time weather data with farming expertise. I can help with crop farming, animal husbandry, disease monitoring, and business planning. What farming question can I help you with today?",
+              title: `Nigerian Farm Assistant ${currentChatId ? `- Chat ${currentChatId.split('-')[1]}` : ''}`,
+              initial: currentChatId ? 
+                `Hi! 👋 I'm your Nigerian Farm Assistant. This is a new chat session. I provide comprehensive agricultural advice combining real-time weather data with farming expertise. I can help with crop farming, animal husbandry, disease monitoring, and business planning. What farming question can I help you with today?` :
+                "Hi! 👋 I'm your Nigerian Farm Assistant. I provide comprehensive agricultural advice combining real-time weather data with farming expertise. I can help with crop farming, animal husbandry, disease monitoring, and business planning. What farming question can I help you with today?",
             }}
             instructions={`You are a comprehensive Nigerian Farm Assistant with deep expertise in local agriculture, crops, soil types, climate zones, and farming business. You provide practical, actionable farming advice by combining comprehensive weather data with agricultural knowledge, farming tips, budget planning, and general farming guidance.
 
